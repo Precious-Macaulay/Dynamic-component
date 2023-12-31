@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import './App.css';
 
 const data = [
@@ -19,22 +19,25 @@ const TwoColumnGrid = () => {
 
   const gridRef = useRef(null);
 
-  useEffect(() => {
-    const calculateRects = () => {
-      const newGridRect = gridRef.current.getBoundingClientRect();
+  const calculateRects = () => {
+    requestAnimationFrame(() => {
+      const newGridRect = gridRef.current?.getBoundingClientRect();
       setGridRect(newGridRect);
 
-      const firstCellHeight = gridRef.current.children[1].clientHeight;
+      const firstCellHeight = gridRef.current?.children[1]?.clientHeight;
       setSecondCellMarginTop(`${firstCellHeight / 2}px`);
 
-      const rect = Array.from(gridRef.current.children).map((child) =>
+      const rect =  gridRef.current?.children ? Array.from(gridRef.current.children).map((child) =>
         child.getBoundingClientRect()
-      );
+      ) : [];
       setCellsRect(rect);
-    };
+    });
+  };
 
+  calculateRects();
+
+  useLayoutEffect(() => {
     calculateRects();
-
     window.addEventListener('resize', calculateRects);
 
     return () => {
